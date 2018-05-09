@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+"""
+The original version of this script created by
+Nick Johnson <arachnid@notdot.net> and may be found here:
+https://gist.github.com/Arachnid/c51b450b0c80eb246394aab5c867d666
+"""
+
 import argparse
 import requests
 import xml.etree.ElementTree as ET
