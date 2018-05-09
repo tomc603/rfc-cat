@@ -1,4 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+"""
+The original version of this script created by
+Nick Johnson <arachnid@notdot.net> and may be found here:
+https://gist.github.com/Arachnid/c51b450b0c80eb246394aab5c867d666
+
+Updates by Tom Cameron https://github.com/tomc603
+"""
 
 import argparse
 import requests
