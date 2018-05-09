@@ -4,7 +4,7 @@ import argparse
 import requests
 import xml.etree.ElementTree as ET
 
-from cStringIO import StringIO
+from io import StringIO
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
 
@@ -21,10 +21,10 @@ parser.add_argument('--all', default=False, action='store_true', help='Include *
 namespaces = {'rfc': 'http://www.rfc-editor.org/rfc-index'}
 
 def fetch_rfc_index():
-    print "Fetching RFC index..."
+    print("Fetching RFC index...")
     response = requests.get("http://ietf.org/rfc/rfc-index.xml")
     response.raise_for_status()
-    print "Parsing RFC index..."
+    print("Parsing RFC index...")
     xml = ET.fromstring(response.content)
     #xml = ET.parse('rfc-index.xml')
 
@@ -45,7 +45,7 @@ def fetch_rfc_index():
 
 def rfcs_by_keyword(rfc_index, keywords):
     ret = set()
-    for docid, info in rfc_index.iteritems():
+    for docid, info in rfc_index.items():
         if 'keywords' in info and not info['keywords'].isdisjoint(keywords):
             ret.add(docid)
     return ret
@@ -69,11 +69,11 @@ def follow_references(rfc_index, rfcs, include_updates, include_obsoletes, inclu
 
 
 def get_doc(rfc):
-    print "Adding %s..." % (rfc,)
+    print("Adding %s..." % (rfc,))
     rfcnum = int(rfc[3:])
     response = requests.get("http://ietf.org/rfc/rfc%s.txt.pdf" % (rfcnum,))
     if response.status_code == 404:
-        print "Could not add %s: No PDF version found." % (rfc,)
+        print("Could not add %s: No PDF version found." % (rfc,))
         return None
     response.raise_for_status()
     return PdfFileReader(StringIO(response.content))
@@ -90,7 +90,7 @@ def build_docs(rfcs, prefix, maxpages):
         numpages = reader.getNumPages()
         if pagenum + numpages > maxpages:
             filename = '%s-%d.pdf' % (prefix, volume)
-            print "Writing %s with %d pages" % (filename, pagenum)
+            print("Writing %s with %d pages" % (filename, pagenum))
             fh = open(filename, 'wb')
             writer.write(fh)
             fh.close()
@@ -103,7 +103,7 @@ def build_docs(rfcs, prefix, maxpages):
             pagenum += 1
 
     filename = '%s-%d.pdf' % (prefix, volume)
-    print "Writing %s with %d pages" % (filename, pagenum)
+    print("Writing %s with %d pages" % (filename, pagenum))
     fh = open(filename, 'wb')
     writer.write(fh)
     fh.close()
@@ -112,13 +112,13 @@ def build_docs(rfcs, prefix, maxpages):
 def main(args):
     rfc_index = fetch_rfc_index()
     if args.all:
-        rfcs = rfc_index.keys()
+        rfcs = list(rfc_index.keys())
     else:
         rfcs = set('RFC'+ rfc for rfc in args.rfc)
         rfcs.update(rfcs_by_keyword(rfc_index, args.keyword))
         rfcs = follow_references(rfc_index, rfcs, args.include_updates, args.include_obsoletes, args.include_see_also)
     rfcs = sorted(rfcs)
-    print "Found %d relevant RFCs." % (len(rfcs),)
+    print("Found %d relevant RFCs." % (len(rfcs),))
     build_docs(rfcs, args.prefix, args.maxpages)
 
 
